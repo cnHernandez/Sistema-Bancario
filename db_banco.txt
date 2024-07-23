@@ -1,0 +1,450 @@
+CREATE DATABASE banco_db;
+USE banco_db;
+
+CREATE TABLE usuario(
+    id_usuario INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    nombre VARCHAR(20) NOT NULL UNIQUE,
+    contraseña VARCHAR(20) NOT NULL,
+    tipo_Usuario INT NOT NULL,
+    estado BIT NOT NULL DEFAULT 1,
+    CHECK (tipo_Usuario IN (1, 2))
+);
+/* tipo_Usuario 1 = administrador, 2 = cliente */
+
+CREATE TABLE provincia (
+    id_provincia INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    nombre VARCHAR(50) NOT NULL UNIQUE
+);
+
+CREATE TABLE localidad (
+    id_localidad INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    nombre VARCHAR(50) NOT NULL UNIQUE,
+    id_provincia INT NOT NULL,
+    FOREIGN KEY (id_provincia) REFERENCES provincia(id_provincia)
+);
+
+CREATE TABLE direccion (
+    id_direccion INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    calle VARCHAR(100) NOT NULL,
+    numero INT NOT NULL,
+    id_localidad INT NOT NULL,
+    FOREIGN KEY (id_localidad) REFERENCES localidad(id_localidad)
+);
+
+CREATE TABLE clientes (
+    id_cliente INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    id_usuario INT NOT NULL,
+    dni VARCHAR(20) NOT NULL,
+    cuil VARCHAR(20) NOT NULL,
+    nombre VARCHAR(50) NOT NULL,
+    apellido VARCHAR(50) NOT NULL,
+    sexo CHAR(1) NOT NULL,
+    nacionalidad VARCHAR(50) NOT NULL,
+    fecha_nacimiento DATE NOT NULL,
+    id_direccion INT NOT NULL,
+    correo_electronico VARCHAR(100) NOT NULL UNIQUE,
+    telefono VARCHAR(20),
+    estado BIT NOT NULL DEFAULT 1,
+    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario),
+    FOREIGN KEY (id_direccion) REFERENCES direccion(id_direccion)
+);
+
+CREATE TABLE tipo_de_cuenta(
+    id_tipo_cuenta INT AUTO_INCREMENT PRIMARY KEY,
+    tipo_cuenta VARCHAR(30) NOT NULL
+);
+
+CREATE TABLE cuentas (
+    id_cuenta INT AUTO_INCREMENT PRIMARY KEY,
+    id_cliente INT NOT NULL,
+    id_tipo_cuenta INT NOT NULL,
+    fecha_creacion DATE NOT NULL,
+    numero_cuenta VARCHAR(20) NOT NULL UNIQUE,
+    cbu VARCHAR(22) NOT NULL UNIQUE,
+    saldo DECIMAL(15, 2) NOT NULL DEFAULT 10000,
+    estado BIT(1) NOT NULL DEFAULT 1,
+    FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente),
+    FOREIGN KEY (id_tipo_cuenta) REFERENCES tipo_de_cuenta(id_tipo_cuenta)
+);
+
+
+CREATE TABLE solicitudesPrestamos (
+    id_solicitud INT AUTO_INCREMENT PRIMARY KEY,
+    id_cliente INT NOT NULL,
+    id_cuenta INT NOT NULL,
+    fecha DATE NOT NULL,
+    importe_pedido DECIMAL(15, 2) NOT NULL,
+    plazo_meses INT NOT NULL,
+    estado_solicitud VARCHAR(20) NOT NULL, -- "pendiente", "aprobado", "rechazado"
+    tasa_interes DECIMAL(5, 2) NOT NULL, -- Nueva columna para la tasa de interés
+    FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente),
+    FOREIGN KEY (id_cuenta) REFERENCES cuentas(id_cuenta)
+);
+
+CREATE TABLE prestamos (
+    idPrestamo INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    idCliente INT NOT NULL,
+    idSolicitud INT NOT NULL,
+    fecha DATE NOT NULL,
+    importeTotal FLOAT NOT NULL,
+    importePedido FLOAT NOT NULL,
+    plazoMeses INT NOT NULL,
+    montoCuota FLOAT NOT NULL,
+    idCuenta INT NOT NULL,
+    autorizado BOOLEAN NOT NULL,
+    FOREIGN KEY (idCliente) REFERENCES clientes(id_cliente),  -- Corregido: id_cliente en lugar de idCliente
+    FOREIGN KEY (idCuenta) REFERENCES cuentas(id_cuenta),
+    FOREIGN KEY (idSolicitud) REFERENCES solicitudesPrestamos(id_solicitud)
+);
+
+create TABLE tipo_de_movimiento (
+    id_tipo_movimiento INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    tipo_de_movimiento VARCHAR(30) NOT NULL
+);
+
+
+CREATE TABLE movimientos (
+    id_movimiento INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    id_cuenta INT NOT NULL,
+    id_tipo_movimiento INT NOT NULL,
+    fecha DATE NOT NULL,
+    detalle VARCHAR(255) NOT NULL,
+    importe DECIMAL(15, 2) NOT NULL,
+    FOREIGN KEY (id_tipo_movimiento) REFERENCES tipo_de_movimiento(id_tipo_movimiento),
+    FOREIGN KEY (id_cuenta) REFERENCES cuentas(id_cuenta)
+);
+
+CREATE TABLE transferencias (
+    id_transferencia INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    id_movimiento_origen INT NOT NULL,
+    id_movimiento_destino INT NOT NULL,
+    FOREIGN KEY (id_movimiento_origen) REFERENCES movimientos(id_movimiento),
+    FOREIGN KEY (id_movimiento_destino) REFERENCES movimientos(id_movimiento)
+);
+
+CREATE TABLE cuotas (
+    id_cuota INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    id_prestamo INT NOT NULL,
+    numero_cuota INT NOT NULL,
+    fecha_vencimiento DATE NOT NULL,
+    monto DECIMAL(15, 2) NOT NULL,
+    pagada BIT NOT NULL DEFAULT 0,
+    fecha_pago DATE,
+    FOREIGN KEY (id_prestamo) REFERENCES prestamos(idPrestamo)
+);
+
+CREATE TABLE pagos (
+    id_pago INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    id_cuota INT NOT NULL,
+    id_cuenta INT NOT NULL,
+    fecha_pago DATE NOT NULL,
+    monto DECIMAL(15, 2) NOT NULL,
+    FOREIGN KEY (id_cuota) REFERENCES cuotas(id_cuota),
+    FOREIGN KEY (id_cuenta) REFERENCES cuentas(id_cuenta)
+);
+
+CREATE TABLE notificaciones (
+    id_notificacion INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    id_cliente INT NOT NULL,
+    fecha DATE NOT NULL,
+    mensaje VARCHAR(255) NOT NULL,
+    leida BIT NOT NULL DEFAULT 0,
+    FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente)
+);
+
+
+
+-- TRIGGERS
+-- DAR DE BAJA USUARIO DESPUES DE CLIENTE
+
+
+DELIMITER //
+
+CREATE TRIGGER DESPUES_BAJA_CLIENTE
+AFTER UPDATE ON clientes
+FOR EACH ROW
+BEGIN
+    DECLARE EstadoUsuario BIT;
+    
+    SELECT estado INTO EstadoUsuario FROM usuario WHERE id_usuario = NEW.id_usuario;
+
+    IF NEW.estado = 0 AND EstadoUsuario = 1 THEN
+        UPDATE usuario 
+        SET estado = 0 
+        WHERE id_usuario = NEW.id_usuario;
+    END IF;
+END //
+
+DELIMITER ;
+
+
+-- ESTE TRIGGER LO QUE HACE ES DESPUES DE LA BAJA LOGICA DEL USUARIO, RELIAZA LA BAJA DEL CLIENTE ASOCIADO A ESE USUARIO.
+
+DELIMITER //
+
+CREATE TRIGGER DESPUES_DE_BAJA_USUARIO
+AFTER UPDATE ON usuario
+FOR EACH ROW
+BEGIN
+    -- Verificar si el nuevo estado del usuario es 0
+    IF NEW.estado = 0 THEN
+        -- Actualizar solo si el estado del cliente no está en 0
+        IF (SELECT estado FROM clientes WHERE id_usuario = NEW.id_usuario) != 0 THEN
+            UPDATE clientes 
+            SET estado = 0 
+            WHERE id_usuario = NEW.id_usuario;
+        END IF;
+    END IF;
+END //
+
+DELIMITER ;
+
+
+
+-- ESTE TRIGGER ES TODO LO CONTRARIO AL OTRO, CUANDO USAMOS EL DAR DE ALTA NUEVAMENTE EN EL PROGRAMA DAMOS DE ALTA EL CLIENTE
+
+DELIMITER //
+
+CREATE TRIGGER DESPUES_DE_ALTA_USUARIO
+AFTER UPDATE ON usuario
+FOR EACH ROW
+BEGIN
+    IF NEW.estado = 1 THEN
+        UPDATE clientes 
+        SET estado = 1 
+        WHERE id_usuario = NEW.id_usuario;
+    END IF;
+END //
+
+DELIMITER ;
+
+
+-- TRIGGER PARA INSERT EN CUOTAS SEGUN EL PRESTAMO INSERTADO/APROBADO.
+DELIMITER //
+
+CREATE TRIGGER after_insert_prestamo
+AFTER INSERT ON prestamos
+FOR EACH ROW
+BEGIN
+    DECLARE i INT DEFAULT 1;
+    DECLARE numCuotas INT;
+    DECLARE montoCuota DECIMAL(10,2);
+    DECLARE fechaVencimiento DATE;
+    
+    SET numCuotas = NEW.plazoMeses;
+    SET montoCuota = NEW.montoCuota;
+    SET fechaVencimiento = NEW.fecha;
+    
+    WHILE i <= numCuotas DO
+        INSERT INTO cuotas (id_prestamo, numero_cuota, fecha_vencimiento, monto, pagada, fecha_pago)
+        VALUES (NEW.idPrestamo, i, DATE_ADD(fechaVencimiento, INTERVAL (i-1) MONTH), montoCuota, FALSE, NULL);
+        
+        SET i = i + 1;
+    END WHILE;
+END //
+
+DELIMITER ;
+
+// TRIGGER PARA NOTIFICAR
+DELIMITER $$
+
+CREATE TRIGGER after_transferencia_insert
+AFTER INSERT ON transferencias
+FOR EACH ROW
+BEGIN
+    DECLARE idClienteOrigen INT;
+    DECLARE idClienteDestino INT;
+    DECLARE montoOrigen DECIMAL(15, 2);
+    DECLARE montoDestino DECIMAL(15, 2);
+    DECLARE mensajeOrigen VARCHAR(255);
+    DECLARE mensajeDestino VARCHAR(255);
+
+    -- Obtener el id_cliente y el monto de la cuenta origen
+    SELECT c.id_cliente, m.importe INTO idClienteOrigen, montoOrigen
+    FROM cuentas c
+    JOIN movimientos m ON c.id_cuenta = m.id_cuenta
+    WHERE m.id_movimiento = NEW.id_movimiento_origen;
+
+    -- Obtener el id_cliente y el monto de la cuenta destino
+    SELECT c.id_cliente, m.importe INTO idClienteDestino, montoDestino
+    FROM cuentas c
+    JOIN movimientos m ON c.id_cuenta = m.id_cuenta
+    WHERE m.id_movimiento = NEW.id_movimiento_destino;
+
+    -- Mensaje para el cliente origen
+    SET mensajeOrigen = CONCAT('Se ha realizado una transferencia desde tu cuenta por un monto de ', montoOrigen);
+
+    -- Mensaje para el cliente destino
+    SET mensajeDestino = CONCAT('Has recibido una transferencia en tu cuenta por un monto de ', montoDestino);
+
+    -- Insertar notificación para el cliente origen
+    INSERT INTO notificaciones (id_cliente, fecha, mensaje, leida)
+    VALUES (idClienteOrigen, NOW(), mensajeOrigen, 0);
+
+    -- Insertar notificación para el cliente destino
+    INSERT INTO notificaciones (id_cliente, fecha, mensaje, leida)
+    VALUES (idClienteDestino, NOW(), mensajeDestino, 0);
+END$$
+
+DELIMITER ;
+
+-- Inserts para la tabla provincia
+INSERT INTO provincia (nombre) VALUES
+('Buenos Aires'),
+('Córdoba'),
+('Santa Fe'),
+('Mendoza'),
+('Entre Ríos'),
+('San Juan'),
+('San Luis'),
+('Catamarca'),
+('La Rioja'),
+('Tierra del Fuego');
+
+INSERT INTO localidad (nombre, id_provincia) VALUES
+('Bahía Blanca', 1),
+('San Isidro', 1),
+('Villa María', 2),
+('Rafaela', 2),
+('Godoy Cruz', 3),
+('Concordia', 3),
+('Tigre', 4),
+('Villa Carlos Paz', 4),
+('Reconquista', 5),
+('Guaymallén', 5),
+('Gualeguaychú', 6),
+('Avellaneda', 6),
+('Río Cuarto', 7),
+('Venado Tuerto', 7),
+('San Juan', 8),
+('San Luis', 8),
+('Catamarca', 9),
+('La Rioja', 9),
+('Ushuaia', 10),
+('Río Grande', 10);
+
+-- Inserts para la tabla usuario
+INSERT INTO usuario (nombre, contraseña, tipo_Usuario, estado) VALUES
+('admin', 'admin123', 1, 1),
+('Juan', '123', 2, 1),
+('María', '123', 2, 1),
+('Carlos', '123', 2, 1),
+('Ana', '123', 2, 1),
+('Luis', '123', 2, 1),
+('Laura', '123', 2, 1),
+('Pedro', '123', 2, 1),
+('Sofía', '123', 2, 1),
+('Martín', '123', 2, 1),
+('Elena', '123', 2, 1),
+('Diego', '123', 2, 1),
+('Lucía', '123', 2, 1),
+('Alberto', '123', 2, 1),
+('Paula', '123', 2, 1),
+('Jorge', '123', 2, 1),
+('Valeria', '123', 2, 1);
+
+-- Inserts para la tabla direccion
+INSERT INTO direccion (calle, numero, id_localidad)
+VALUES
+('Av. Rivadavia', 1234, 1),        
+('Av. Independencia', 5678, 2),     
+('Av. Vélez Sarsfield', 910, 3),    
+('Calle 9 de Julio', 250, 4),        
+('Av. San Martín', 340, 5),         
+('Av. Mitre', 505, 6),              
+('Calle Belgrano', 789, 7),       
+('Av. Italia', 123, 8),            
+('Av. Libertador', 456, 9),         
+('Calle Buenos Aires', 789, 10),    
+('Av. España', 567, 11),             
+('Av. Sarmiento', 890, 12),          
+('Calle Entre Ríos', 432, 13),      
+('Av. Corrientes', 876, 14),         
+('Av. Pellegrini', 987, 15),         
+('Av. San Juan', 321, 16),          
+('Av. San Luis', 456, 17),           
+('Av. Catamarca', 789, 18),          
+('Av. La Rioja', 567, 19),           
+('Av. Malvinas Argentinas', 890, 20); 
+
+-- Inserts para la tabla clientes
+INSERT INTO clientes (id_usuario, dni, cuil, nombre, apellido, sexo, nacionalidad, fecha_nacimiento, id_direccion, correo_electronico, telefono)
+VALUES
+(2, '12345678', '20345678901', 'Juan', 'García', 'M', 'Argentino', '1990-05-15', 2, 'juan.garcia@example.com', '1122334455'),
+(3, '23456789', '30456789012', 'María', 'López', 'F', 'Argentino', '1992-08-20', 3, 'maria.lopez@example.com', '1122334466'),
+(4, '34567890', '40567890123', 'Carlos', 'Martínez', 'M', 'Argentino', '1985-03-10', 4, 'carlos.martinez@example.com', '1122334477'),
+(5, '45678901', '50678901234', 'Ana', 'Rodríguez', 'F', 'Argentino', '1988-11-28', 5, 'ana.rodriguez@example.com', '1122334488'),
+(6, '56789012', '60789012345', 'Luis', 'Pérez', 'M', 'Argentino', '1995-06-03', 6, 'luis.perez@example.com', '1122334499'),
+(7, '67890123', '70890123456', 'Laura', 'Gómez', 'F', 'Argentino', '1993-04-17', 7, 'laura.gomez@example.com', '1122334500'),
+(8, '78901234', '80901234567', 'Pedro', 'Sánchez', 'M', 'Argentino', '1980-12-05', 8, 'pedro.sanchez@example.com', '1122334511'),
+(9, '89012345', '90123456789', 'Sofía', 'Fernández', 'F', 'Argentino', '1991-09-22', 9, 'sofia.fernandez@example.com', '1122334522'),
+(10, '90123456', '00123456789', 'Martín', 'Gutiérrez', 'M', 'Argentino', '1987-07-14', 10, 'martin.gutierrez@example.com', '1122334533'),
+(11, '01234567', '10123456789', 'Elena', 'Díaz', 'F', 'Argentino', '1983-02-09', 11, 'elena.diaz@example.com', '1122334544'),
+(12, '12345670', '20123456789', 'Diego', 'Alvarez', 'M', 'Argentino', '1982-01-30', 12, 'diego.alvarez@example.com', '1122334555'),
+(13, '23456780', '30123456789', 'Lucía', 'Romero', 'F', 'Argentino', '1989-10-11', 13, 'lucia.romero@example.com', '1122334566'),
+(14, '34567890', '40123456789', 'Alberto', 'Suárez', 'M', 'Argentino', '1984-07-25', 14, 'alberto.suarez@example.com', '1122334577'),
+(15, '45678900', '50123456789', 'Paula', 'Torres', 'F', 'Argentino', '1994-05-07', 15, 'paula.torres@example.com', '1122334588'),
+(16, '56789001', '60123456789', 'Jorge', 'Ramírez', 'M', 'Argentino', '1986-08-18', 16, 'jorge.ramirez@example.com', '1122334599');
+
+
+-- Inserts para la tabla tipo_de_cuenta
+INSERT INTO tipo_de_cuenta (tipo_cuenta) VALUES
+('Caja de ahorro'),
+('Cuenta corriente');
+
+-- Inserts para la tabla cuentas
+INSERT INTO cuentas (id_cliente, fecha_creacion, id_tipo_cuenta, numero_cuenta, cbu, saldo, estado)
+VALUES
+(2, CURDATE(), 1, '11112222333344445550', '1111222233334444555001', 10000.00, 1),
+(2, CURDATE(), 2, '21112222333344445550', '2111222233334444555002', 10000.00, 1),
+
+(3, CURDATE(), 1, '22223333444455556660', '2222333344445555666001', 10000.00, 1),
+(3, CURDATE(), 2, '32223333444455556660', '3222333344445555666002', 10000.00, 1),
+
+(4, CURDATE(), 1, '33334444555566667770', '3333444455556666777001', 10000.00, 1),
+(4, CURDATE(), 2, '43334444555566667770', '4333444455556666777002', 10000.00, 1),
+
+(5, CURDATE(), 1, '44445555666677778880', '4444555566667777888001', 10000.00, 1),
+(5, CURDATE(), 2, '54445555666677778880', '5444555566667777888002', 10000.00, 1),
+
+(6, CURDATE(), 1, '66667777888899990000', '6666777788889999000001', 10000.00, 1),
+(6, CURDATE(), 2, '76667777888899990000', '7666777788889999000002', 10000.00, 1),
+
+(7, CURDATE(), 1, '77778888999900001110', '7777888899990000111001', 10000.00, 1),
+(7, CURDATE(), 2, '87778888999900001110', '8777888899990000111002', 10000.00, 1),
+
+(8, CURDATE(), 1, '88889999000011112220', '8888999900001111222001', 10000.00, 1),
+(8, CURDATE(), 2, '98889999000011112220', '9888999900001111222002', 10000.00, 1),
+
+(9, CURDATE(), 1, '99990000111122223330', '9999000011112222333001', 10000.00, 1),
+(9, CURDATE(), 2, '09990000111122223330', '0999000011112222333002', 10000.00, 1),
+
+(10, CURDATE(), 1, '00001111222233334440', '000011112222333344401', 10000.00, 1),
+(10, CURDATE(), 2, '10001111222233334440', '100011112222333344402', 10000.00, 1),
+
+(11, CURDATE(), 1, '11112222333344445551', '111122223333444455511', 10000.00, 1),
+(11, CURDATE(), 2, '21112222333344445551', '211122223333444455512', 10000.00, 1);
+
+
+
+
+-- inserts para cada movimiento segun la base 
+insert into tipo_de_movimiento (id_tipo_movimiento, tipo_de_movimiento) 
+values(1,'Alta de cuenta'),
+(2,'Alta de prestamo'),
+(3,'Pago de prestamo'),
+(4,'Transferencia');
+
+INSERT INTO movimientos (id_cuenta, id_tipo_movimiento, fecha, detalle, importe) 
+VALUES
+(1, 1, CURDATE(), 'Alta de Cuenta', 10000),
+(2, 1, CURDATE(), 'Alta de Cuenta', 10000),
+(3, 1, CURDATE(), 'Alta de Cuenta', 10000),
+(4, 1, CURDATE(), 'Alta de Cuenta', 10000),
+(5, 1, CURDATE(), 'Alta de Cuenta', 10000),
+(6, 1, CURDATE(), 'Alta de Cuenta', 10000),
+(7, 1, CURDATE(), 'Alta de Cuenta', 10000),
+(8, 1, CURDATE(), 'Alta de Cuenta', 10000),
+(9, 1, CURDATE(), 'Alta de Cuenta', 10000),
+(10, 1, CURDATE(), 'Alta de Cuenta', 10000),
+(11, 1, CURDATE(), 'Alta de Cuenta', 10000);
