@@ -1,0 +1,571 @@
+body{
+	background-color:#F5F5F5;
+	overflow: auto;
+}
+.uniform-button {
+    width: 150px; 
+}
+
+.custom-card {
+        margin-top: 80px; 
+        margin-left: 10px; 
+    }
+    
+#customers {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+#customers td, #customers th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#customers tr:nth-child(even){background-color: #f2f2f2;}
+
+#customers tr:hover {background-color: #ddd;}
+
+#customers th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #04AA6D;
+  color: white;
+}
+
+  .menu-lateral {
+    position: fixed;
+    top: 0;
+    left: -250px; /* Ocultar el menú al principio */
+    bottom: 0;
+    width: 250px; /* Ancho del menú lateral */
+    background-color: #B0C4DE; /* Color de fondo del menú lateral */
+    padding: 15px;
+    transition: left 1.0s ease; /* Transición más lenta */
+    z-index: 1000; /* Capa superior para asegurar que esté por encima del contenido */
+    box-shadow: 2px 0 5px rgba(0,0,0,0.5); /* Sombra para resaltar el menú */
+  }
+
+  .menu-lateral a {
+    color: #000000; /* Color de texto para los enlaces */
+  }
+
+  .menu-lateral ul {
+    padding-left: 0;
+    list-style-type: none; /* Quitar los estilos de la lista */
+  }
+
+  .menu-lateral li {
+    margin-bottom: 10px; /* Espacio entre elementos de la lista */
+  }
+
+  .menu-lateral li a {
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+    transition: background-color 0.2s ease; /* Transición suave para el color de fondo */
+  }
+
+  .menu-lateral li a:hover {
+    background-color: #495057; /* Color de fondo al pasar el mouse */
+  }
+
+  .contenido-principal {
+    margin-left: 250px; /* Ajustar el margen izquierdo para el contenido */
+    transition: margin-left 0.5s ease; /* Transición más lenta para el ajuste de margen */
+  }
+  
+  .navbar-custom {
+    background-color: #B0C4DE;
+}
+
+   .custom-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    background-color: #B0C4DE;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-top: 80px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.custom-container h2 {
+    margin-bottom: 20px;
+}
+
+.custom-container label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.custom-container input, .custom-container select, .custom-container button, .custom-container a {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    box-sizing: border-box; /* Añadido para que el padding y el borde no afecten al tamaño total */
+}
+
+.custom-container button {
+    padding: 10px 20px;
+    background-color: #28a745; /* Cambiado a verde */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.custom-container button:hover {
+    background-color: #218838; /* Cambiado a un tono más oscuro al hacer hover */
+}
+
+.custom-container a {
+    text-decoration: none; /* Quita el subrayado por defecto */
+    display: inline-block; /* Asegura que el enlace se comporte como un bloque en línea */
+    padding: 10px 20px;
+    background-color: #6c757d; /* Color gris para el botón "Volver" */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.custom-container a:hover {
+    background-color: #5a6268; /* Cambiado a un tono más oscuro al hacer hover */
+}
+
+.custom-container .alert {
+    width: 100%; /* Hace que la alerta ocupe el 100% del contenedor padre */
+    padding: 10px; /* Ajuste de padding según tu preferencia */
+    border-radius: 5px;
+    margin-top: 15px;
+}
+
+.custom-container .alert-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.custom-container .alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.custom-container-principal {
+        display: flex;
+        flex-direction: column; /* Alinear el contenido en columna */
+        justify-content: center;
+        align-items: center;
+        padding: 40px; /* Ajusta el padding según necesites */
+        background-color: #B0C4DE; /* Color de fondo */
+        border: 1px solid #ced4da; /* Borde */
+        border-radius: 8px; /* Bordes redondeados */
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra */
+        margin-top: 80px; /* Ajuste adicional para evitar superposición con el navbar */
+        max-height: 80vh; /* Altura máxima del contenedor */
+        overflow-y: auto; /* Agrega scroll si el contenido excede la altura máxima */
+        margin-bottom:100px;
+    }
+
+    .custom-container-principal h1 {
+        margin-bottom: 20px; /* Separación entre el h1 y el párrafo */
+    }
+
+    .custom-button:hover {
+        background-color: #0056b3; /* Color de fondo al pasar el mouse */
+    }
+
+    .custom-container-principal img {
+        max-width: 100%; /* Ajusta el ancho máximo de la imagen */
+        margin-bottom: 20px; /* Espacio inferior entre la imagen y el título */
+    }
+    
+    .button-group {
+    display: flex;
+    justify-content: space-between; /* Cambiado a space-between para tener espacio entre los botones */
+    margin-top: 20px;
+    text-decoration: none; /* Elimina el subrayado */
+}
+
+.button {
+    display: inline-block;
+    padding: 8px 16px; /* Reducido el padding para hacer los botones más delgados */
+    margin-right: 10px; /* Margen derecho entre los botones */
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border: 1px solid #007bff; /* Añadido borde para hacer más visible el botón */
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.button:last-child {
+    margin-right: 0; /* Elimina el margen derecho del último botón para evitar espacio adicional */
+}
+
+.button:hover {
+    background-color: #0056b3;
+}
+@import url('https://fonts.googleapis.com/css?family=Montserrat:400,800|Poppins&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.cards {
+  max-width: 1100px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 30px;
+}
+
+.cards h2.header {
+  font-size: 40px;
+  margin: 0 0 30px 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.cuentas {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  
+}
+
+.content {
+  flex: 1 1 300px; /* Tamaño fijo inicial para tres tarjetas por fila */
+  max-width: 300px; /* Tamaño fijo inicial */
+  margin: 10px;
+  padding: 15px;
+  border: 2px solid black;
+  border-radius: 4px;
+  transition: all .3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
+  background-color:#B1C9EF;
+}
+
+.content .fab {
+  font-size: 50px;
+  margin: 10px 0;
+}
+
+.content > * {
+  flex: 1 1 auto;
+  
+}
+
+.content:hover {
+  color: white;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada en hover */
+}
+
+.content:hover a {
+  border-color: white;
+  background: white;
+}
+
+.content-1:hover {
+  border-color: #1DA1F2;
+  background: #1DA1F2;
+}
+
+.content-1:hover a {
+  color: #1DA1F2;
+}
+
+.content-2:hover {
+  border-color: #E1306C;
+  background: #E1306C;
+}
+
+.content-2:hover a {
+  color: #E1306C;
+}
+
+.content-3:hover {
+  border-color: #ff0000;
+  background: #ff0000;
+}
+
+.content-3:hover a {
+  color: #ff0000;
+}
+
+.content h2 {
+  font-size: 20px;
+  margin: 10px 0;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.content p {
+  font-size: 14px;
+  font-family: 'Poppins', sans-serif;
+  text-align: center;
+}
+
+.content a {
+  margin: 15px 0;
+  background: black;
+  color: white;
+  text-decoration: none;
+  text-transform: uppercase;
+  border: 1px solid black;
+  padding: 10px 20px;
+  border-radius: 25px;
+  transition: .3s ease;
+}
+
+.content a:hover {
+  border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+  .content {
+    flex: 1 1 calc(50% - 20px); /* Dos tarjetas por fila en pantallas más pequeñas */
+    max-width: calc(50% - 20px);
+  }
+}
+
+@media (max-width: 480px) {
+  .content {
+    flex: 1 1 100%; /* Una tarjeta por fila en dispositivos móviles */
+    max-width: 100%;
+  }
+}
+
+
+
+.notification-icon {
+    position: relative;
+    display: inline-block;
+    margin-right: 10px; /* Ajusta según tu diseño */
+}
+
+.notification-badge {
+    position: absolute;
+    top: -5px; /* Ajusta según tu diseño */
+    right: -5px; /* Ajusta según tu diseño */
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 12px;
+}
+
+.notificacion {
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+  padding: 10px;
+  transition: background-color 0.3s ease; /* Transición suave para el cambio de color de fondo */
+}
+
+.notificacion.leida {
+  background-color: #f0f0f0; /* Color de fondo para las notificaciones leídas */
+}
+
+.notificacion:hover {
+  background-color: #e9ecef; /* Color de fondo al pasar el mouse */
+}
+
+.body-noti {
+    background-color: #f2f2f2; /* Fondo claro */
+    width: 100%;
+    min-height: 100vh;
+
+}
+
+.card {
+    border-radius: 12px;
+    background: #ffffff; /* Fondo de la tarjeta */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.card-title {
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.chat-message {
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    background-color: #e9ecef; /* Fondo de los mensajes */
+}
+
+.chat-message.received {
+    border-left: 6px solid #4070f4; /* Bordes de los mensajes */
+}
+
+.notificacion.leida {
+    background-color: #d4edda; /* Color de fondo para notificaciones leídas */
+}
+
+.notificacion {
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.notificacion:hover {
+    background-color: #f8f9fa; /* Color de fondo más claro al pasar el cursor */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Añade una sombra para resaltar la notificación */
+}
+
+.mt-custom {
+    margin-top: 6rem; /* O cualquier otro valor que necesites */
+}
+
+.mb-custom {
+    margin-bottom: 6rem; /* O cualquier otro valor que necesites */
+}
+
+/* advanced-styles.css */
+
+h2 {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    color: #343a40;
+}
+
+.cardReporte {
+    margin-bottom: 20px;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.cardReporte:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.card-title {
+    margin-bottom: 15px;
+    font-size: 1.25rem;
+    color: #007bff;
+}
+
+.card-text {
+    font-size: 1.1rem;
+    color: #495057;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-control {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #004085;
+}
+
+.table {
+    width: 100%;
+    margin-bottom: 1rem;
+    color: #212529;
+    background-color: #fff;
+    border-collapse: collapse;
+}
+
+.table th, .table td {
+    padding: 0.75rem;
+    vertical-align: top;
+    border-top: 1px solid #dee2e6;
+    text-align: center;
+}
+
+.table thead th {
+    vertical-align: bottom;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.alert {
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.reporte-2{
+	background-color: #B0C4DE;
+}
+
+.h2-reportes {
+    margin: 20px 0;
+    padding: 10px 0;
+    font-family: "Open Sans", sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: #2c3e50; /* Un color azul oscuro elegante */
+    text-align: center;
+    text-transform: uppercase; /* Convierte el texto a mayúsculas */
+    letter-spacing: 1px; /* Espaciado entre letras */
+    border-bottom: 2px solid #2980b9; /* Línea inferior */
+    position: relative;
+}
+
+.h2-reportes::after {
+    content: "";
+    position: absolute;
+    width: 100px; /* Anchura de la línea decorativa */
+    height: 4px; /* Altura de la línea decorativa */
+    background-color: #2980b9; /* Color de la línea decorativa */
+    bottom: -10px; /* Posición respecto al borde inferior del título */
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.h3-reportes {
+    margin: 20px 0;
+    padding: 10px 0;
+    font-family: "Open Sans", sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: #2c3e50; /* Un color azul oscuro elegante */
+    text-align: center;
+    text-transform: uppercase; /* Convierte el texto a mayúsculas */
+    letter-spacing: 1px; /* Espaciado entre letras */
+    border-bottom: 2px solid #DC143C; /* Línea inferior */
+    position: relative;
+}
+
+
